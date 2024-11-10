@@ -1,3 +1,8 @@
 from django.contrib import admin
+from .models import ScrapedPost
 
-# Register your models here.
+@admin.register(ScrapedPost)
+class ScrapedPostAdmin(admin.ModelAdmin):
+    list_display = ('title', 'host', 'author', 'interest', 'write_at')
+    search_fields = ('title', 'author', 'tags')
+    list_filter = ('host', 'interest')
