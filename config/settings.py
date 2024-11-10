@@ -28,6 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -40,7 +41,9 @@ INSTALLED_APPS = [
 ]
 
 SEO_INSTALLED_APPS = [
-    'search',
+    # 'search',
+    'signup',
+    'login',
 ]
 
 INSTALLED_APPS = INSTALLED_APPS + SEO_INSTALLED_APPS
@@ -54,6 +57,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+AUTH_USER_MODEL = 'signup.User'
 
 ROOT_URLCONF = 'config.urls'
 

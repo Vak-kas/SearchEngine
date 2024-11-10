@@ -19,5 +19,8 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('search/', include('search.urls')),
+    # path('search/', include('search.urls')),
+    path('signup/', include('signup.urls')),
+    path('login/', include('login.urls')),  # login 앱의 URL 포함
+
 ]
