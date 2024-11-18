@@ -1,19 +1,20 @@
 from django.db import models
 
-class ScrapedPost(models.Model):
-    HOST_CHOICES = [
-        ('velog', 'Velog'),
-        ('tistory', 'Tistory'),
-        ('naver', 'Naver'),
-    ]
+class Post(models.Model):
 
-    host = models.CharField(max_length=50, choices=HOST_CHOICES)
+    host = models.CharField(max_length=50)
     title = models.CharField(max_length=255)
     author = models.CharField(max_length=100)
     url = models.URLField(unique=True)
-    # tags = models.TextField()  # 여러 태그를 쉼표로 구분하여 저장
-    interest = models.CharField(max_length=50)
-    write_at = models.CharField(max_length=50)  # 날짜 형식에 따라 CharField 또는 DateField 사용 가능
+    content = models.TextField()
 
     def __str__(self):
         return f"{self.title} ({self.host})"
+
+
+class Final(models.Model):
+    post = models.OneToOneField(Post, on_delete=models.CASCADE, related_name='final')
+    category = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f"{self.post.url} - {self.category}"
