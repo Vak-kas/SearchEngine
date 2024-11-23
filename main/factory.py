@@ -36,7 +36,7 @@ class SeleniumCollector(Collector):
 class SoloCollector(Collector):
     def collect_data(self, url):
         if not url:
-            raise ValueError("URL은 필수입니다.")
+            raise ValueError("URL이 없음")
 
         try:
             # URL로 HTTP GET 요청
@@ -47,14 +47,14 @@ class SoloCollector(Collector):
             soup = BeautifulSoup(response.text, 'html.parser')
 
             # 기본 데이터 수집 (예: 타이틀 및 본문)
-            title = soup.title.string if soup.title else 'No Title'
+            title = soup.title.string if soup.title else None
             content = soup.get_text()
 
             # 수집된 데이터를 반환
             return {
                 'url': url,
                 'content': content.strip(),
-                'host': None,  # host는 PostAdapter에서 처리됨
+                'host': None,  # host는 PostAdapter에서 처리 예정
                 'title': title,
                 'author': None  # 특별한 로직으로 채우지 않음
             }

@@ -19,12 +19,12 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 class User(AbstractUser):
-    # 기본 AbstractUser 필드를 상속하므로 추가 필드를 필요로 할 경우 정의합니다.
-    interests = models.ManyToManyField('Interest', blank=True)
+    # 기본 AbstractUser 필드를 상속
+    category= models.ManyToManyField('Category', blank=True)
 
-class Interest(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+class Category(models.Model):
+    category = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
-        return self.name
+        return self.category
 

@@ -13,12 +13,10 @@ def collect_and_save(request):
         return JsonResponse({'error': 'collector_type과 url은 필수입니다.'}, status=400)
 
     try:
-        # 팩토리 패턴을 사용하여 수집기 생성
         collector = CollectorFactory.create_collector(collector_type)
         data = collector.collect_data(url)
 
         if data:
-            # PostAdapter를 사용하여 데이터를 저장
             adapter = PostAdapter(data)
             response = adapter.transform_and_save()
             return response
