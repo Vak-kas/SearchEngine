@@ -13,3 +13,8 @@ class UserAdmin(admin.ModelAdmin):
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('category',)
     search_fields = ('category',)
+
+
+class CategoryInline(admin.TabularInline):
+    model = User.category.through
+    extra = 1

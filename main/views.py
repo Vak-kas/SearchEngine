@@ -5,6 +5,9 @@ from .forms import SoloCollectorForm
 from django.shortcuts import render
 
 
+def index(request):
+    return render(request, 'main/main.html')
+
 def collect_and_save(request):
     if request.method == 'POST':
         collector_type = request.POST.get('collector_type')

@@ -12,6 +12,7 @@ def signup_view(request):
             user = form.save(commit=False)
             user.password = make_password(form.cleaned_data['password'])  # 해싱과정
             user.save()
+            form.save_m2m()  # 다대다 관계 저장
             messages.success(request, '회원가입이 완료되었습니다.')
             return redirect('login')  # 로그인 페이지로 리디렉션
         else:
