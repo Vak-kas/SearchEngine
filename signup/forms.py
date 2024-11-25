@@ -7,6 +7,7 @@ class UserSignupForm(forms.ModelForm):
         fields = ['username', 'password', 'email', 'interests']
         widgets = {
             'password': forms.PasswordInput(),
+            'interests': forms.CheckboxSelectMultiple(),
         }
 
     interests = forms.ModelMultipleChoiceField(
@@ -14,3 +15,5 @@ class UserSignupForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=False  # 선택이 필수가 아닌 경우
     )
+
+    

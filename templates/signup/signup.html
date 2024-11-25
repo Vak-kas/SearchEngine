@@ -8,7 +8,13 @@
     <h2>회원가입</h2>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        <p>아이디: {{ form.username }}</p>
+        <p>비밀번호: {{ form.password }}</p>
+        <p>이메일: {{ form.email }}</p>
+        <fieldset>
+            <legend>관심사 선택:</legend>
+            {{ form.interests }}
+        </fieldset>
         <button type="submit">가입하기</button>
     </form>
 
