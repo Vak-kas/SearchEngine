@@ -1,5 +1,6 @@
 from .models import Post
 from django.http import JsonResponse
+from urllib.parse import urlparse
 
 
 
@@ -15,7 +16,7 @@ class PostAdapter:
         post = Post(
             url=self.data['url'],
             content=self.data['content'],
-            host=self.data.get('host', None), #업데이트 예정, url에서 뽑아오는 걸로 수정 예정
+            host=get_host(self.data['url']),
             title=self.data.get('title', None),
             author=self.data.get('author', None)
         )
@@ -27,3 +28,9 @@ class PostAdapter:
             return JsonResponse({'error': str(e)}, status=500)
 
 
+def get_host(url):
+    try:
+        host = urlparse(url)
+        return host.netloc
+    except Exception as e:
+        raise ValueError(f"Invalid URL: {e}")

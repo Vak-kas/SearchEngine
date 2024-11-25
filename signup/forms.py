@@ -1,5 +1,5 @@
 from django import forms
-from .models import User, Interest
+from .models import User, Category
 
 class UserSignupForm(forms.ModelForm):
     class Meta:
@@ -10,7 +10,7 @@ class UserSignupForm(forms.ModelForm):
         }
 
     interests = forms.ModelMultipleChoiceField(
-        queryset=Interest.objects.all(),
+        queryset=Category.objects.all(),
         widget=forms.CheckboxSelectMultiple,
         required=False  # 선택이 필수가 아닌 경우
     )

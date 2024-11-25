@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 import requests
 from bs4 import BeautifulSoup
-from .views import PostAdapter
 # 수집기 인터페이스
 class Collector(ABC):
     @abstractmethod
@@ -56,7 +55,7 @@ class SoloCollector(Collector):
                 'content': content.strip(),
                 'host': None,  # host는 PostAdapter에서 처리 예정
                 'title': title,
-                'author': None  # 특별한 로직으로 채우지 않음
+                'author': None
             }
         except Exception as e:
             print(f"Error collecting data from {url}: {e}")
@@ -75,4 +74,7 @@ class CollectorFactory:
             return SoloCollector()
         else:
             raise ValueError("지원하지 않는 수집기 유형입니다.")
+
+
+
 

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Interest
+from .models import User, Category
 
 # User 모델 등록
 @admin.register(User)
@@ -9,7 +9,7 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ('is_staff', 'is_active')
 
 # Interest 모델 등록
-@admin.register(Interest)
-class InterestAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    search_fields = ('name',)
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('category',)
+    search_fields = ('category',)
