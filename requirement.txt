@@ -1,2 +1,6 @@
 pip install django
 pip install scrapy
+pip install beautifulsoup4
+pip install openai
+pip install python-decouple
+
