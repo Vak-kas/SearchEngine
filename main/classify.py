@@ -41,19 +41,19 @@ def process_post_to_final(post_id):
             }
         ]
 
-        # OpenAI API 호출
+
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages
         )
 
-        # 결과 카테고리 추출
+
         print(response.choices[0].message)
         result_category = response.choices[0].message.content.strip()
 
-        # Final 모델에 데이터 저장
+
         final_entry, created = Final.objects.get_or_create(
-            post=post,  # post 객체 사용
+            post=post,
             defaults={'category': result_category}
         )
 

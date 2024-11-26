@@ -10,27 +10,12 @@ class Collector(ABC):
 # A형 수집기 예시 (웹 스크래핑)
 class ScrapyCollector(Collector):
     def collect_data(self):
-        # 실제 스크래핑 로직을 여기에 구현
-        return {
-            'url': 'https://example.com',
-            'content': 'This is example content.',
-            'host': None,  # 호스트는 어댑터에서 처리
-            'title': 'Example Title',
-            'author': 'Author Name'
-        }
+        pass
 
 # B형 수집기 예시 (API 호출)
 class SeleniumCollector(Collector):
     def collect_data(self):
-        # 실제 API 호출 로직을 여기에 구현
-        return {
-            'url': 'https://api.example.com/data',
-            'content': 'This is content from API.',
-            'host': 'api.example.com',
-            'title': 'API Data Title',
-            'author': 'API Author'
-        }
-
+        pass
 
 class SoloCollector(Collector):
     def collect_data(self, url):
@@ -42,10 +27,10 @@ class SoloCollector(Collector):
             response = requests.get(url)
             response.raise_for_status()  # 상태 코드 확인
 
-            # BeautifulSoup을 사용하여 HTML 파싱
+            # HTML 파싱
             soup = BeautifulSoup(response.text, 'html.parser')
 
-            # 기본 데이터 수집 (예: 타이틀 및 본문)
+            # 기본 데이터 수집 (제목, 본문)
             title = soup.title.string if soup.title else None
             content = soup.get_text()
 
