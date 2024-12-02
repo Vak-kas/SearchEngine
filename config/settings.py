@@ -45,6 +45,7 @@ SEO_INSTALLED_APPS = [
     'signup',
     'login',
     'main',
+    'alarm',
 ]
 
 INSTALLED_APPS = INSTALLED_APPS + SEO_INSTALLED_APPS

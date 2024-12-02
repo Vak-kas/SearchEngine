@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>알림 설정</title>
+</head>
+<body>
+    <h1>알림 설정</h1>
+
+    <!-- 새 알림 설정 추가 폼 -->
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">저장</button>
+    </form>
+
+    <!-- 기존 알림 설정 표시 -->
+    <h2>현재 알림 설정</h2>
+    <ul>
+        {% for setting in settings %}
+            <li>{{ setting.notification_type }}: {{ setting.is_enabled|yesno:"활성화됨,비활성화됨" }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
