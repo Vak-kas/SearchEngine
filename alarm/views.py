@@ -1,6 +1,52 @@
 from django.shortcuts import render, redirect
 from .forms import NotificationSettingsForm
 from .models import NotificationSetting
+from django.shortcuts import render
+from alarm.models import Alarm
+from django.shortcuts import redirect, get_object_or_404
+from django.http import HttpResponseForbidden
+import logging
+logger = logging.getLogger(__name__)
+
+from alarm.models import Alarm
+
+def index(request):
+    if not request.user.is_authenticated:
+        print("User is not authenticated.")
+        return redirect('login')
+
+    try:
+        print(f"Request User: {request.user}")
+        unread_alarms = Alarm.objects.filter(user=request.user, is_read=False)
+        print(f"Unread alarms queryset: {unread_alarms}")
+        logger.info(f"Unread alarms: {[alarm.message for alarm in unread_alarms]}")
+
+
+        for alarm in unread_alarms:
+            print(f"Alarm: {alarm.message} - Created At: {alarm.created_at}")
+
+    except Exception as e:
+        print(f"Error in fetching alarms: {e}")
+        unread_alarms = []
+
+    return render(request, 'main/main.html', {
+        'unread_alarms': unread_alarms,
+    })
+
+
+
+
+
+
+def mark_alarm_read(request, alarm_id):
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden()
+
+    alarm = get_object_or_404(Alarm, id=alarm_id, user=request.user)
+    alarm.is_read = True
+    alarm.save()
+    return redirect('main')
+
 
 def notification_settings(request):
     if not request.user.is_authenticated:
@@ -17,10 +63,9 @@ def notification_settings(request):
             notification_setting.is_enabled = form.cleaned_data['is_enabled']
             notification_setting.save()
 
-            # 설정 저장 후 메인 페이지로 리디렉션
+
             return redirect('main')
     else:
-        # 사용자의 기존 알림 설정 가져오기
         settings = NotificationSetting.objects.filter(user=request.user)
         form = NotificationSettingsForm()
 

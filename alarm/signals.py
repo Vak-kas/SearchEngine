@@ -1,26 +1,44 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from main.models import Post
-from signup.models import User
+from main.models import Final
+from signup.models import User, Category
 from .models import NotificationSetting
-from .observer import CategoryNotifier, EmailAlarm
+from .observer import CategoryNotifier, LoggingAlarm
 
-@receiver(post_save, sender=Post)
-def handle_post_save(sender, instance, created, **kwargs):
+
+@receiver(post_save, sender=Final)
+def handle_final_save(sender, instance, created, **kwargs):
     if created:
-        # 알림을 받을 사용자 필터링
-        users = NotificationSetting.objects.filter(
-            notification_type='email',
-            is_enabled=True
-        ).values_list('user', flat=True)
+        print(f"Signal triggered for Final: {instance.id}, created: {created}")
 
-        if not users:
-            return  # 알림을 받을 사용자가 없으면 종료
+        # Category 객체 조회
+        try:
+            category_obj = Category.objects.get(category=instance.category)
+            print(f"Category object found: {category_obj}")
+        except Category.DoesNotExist:
+            print(f"Category '{instance.category}' does not exist in the database.")
+            return
+
+
+        users = User.objects.filter(
+            category=category_obj,
+            notification_settings__notification_type='push',
+            notification_settings__is_enabled=True
+        )
+
+        print(f"Users found for category '{instance.category}': {[user.username for user in users]}")
+
+        if not users.exists():
+            print(f"No users found for category: {instance.category}")
+            return
 
         # 알림 메시지 생성
-        message = f"새로운 게시글이 등록되었습니다: {instance.title}"
+        message = f"새로운 게시글이 등록되었습니다: {instance.post.title}"
 
-        # 이메일 알림 발송
+        # LoggingAlarm 사용
         notifier = CategoryNotifier()
-        notifier.subscribe(EmailAlarm())
-        notifier.notify_subscribers(users, instance, message)
+        notifier.subscribe(LoggingAlarm())
+        notifier.notify_subscribers(users, instance.post, message)
+        print(f"Notification sent for Final: {instance.category}")
+
+

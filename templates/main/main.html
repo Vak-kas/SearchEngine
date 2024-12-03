@@ -13,5 +13,20 @@
         <button type="submit">알림 설정</button>
     </form>
 
+
+    <h3>읽지 않은 알림</h3>
+    <p>읽지 않은 알림 수: {{ unread_alarms|length }}</p>
+
+    <ul>
+        {% for alarm in unread_alarms %}
+            <li>
+                {{ alarm.message }} (생성 시각: {{ alarm.created_at|date:"Y-m-d H:i" }})
+            </li>
+        {% empty %}
+            <li>읽지 않은 알림이 없습니다.</li>
+        {% endfor %}
+    </ul>
+
+
 </body>
 </html>
