@@ -18,3 +18,10 @@ class Final(models.Model):
 
     def __str__(self):
         return f"{self.post.url} - {self.category}"
+
+class Tags(models.Model):
+    final = models.ForeignKey(Final, on_delete=models.CASCADE, related_name='tags')  # Final 모델과 1:N 관계 설정
+    tag = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.tag
