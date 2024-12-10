@@ -12,21 +12,23 @@ from alarm.models import Alarm
 
 def index(request):
     if not request.user.is_authenticated:
-        print("User is not authenticated.")
+        logger.warning("Unauthenticated user attempted to access the main page.")
         return redirect('login')
 
     try:
-        print(f"Request User: {request.user}")
-        unread_alarms = Alarm.objects.filter(user=request.user, is_read=False)
-        print(f"Unread alarms queryset: {unread_alarms}")
+        logger.info(f"Fetching alarms for user: {request.user}")
+        # 'push' 알림이 활성화된 사용자만 알림 표시
+        push_enabled = NotificationSetting.objects.filter(
+            user=request.user, notification_type='push', is_enabled=True
+        ).exists()
+
+        unread_alarms = []
+        if push_enabled:
+            unread_alarms = Alarm.objects.filter(user=request.user, is_read=False)
+
         logger.info(f"Unread alarms: {[alarm.message for alarm in unread_alarms]}")
-
-
-        for alarm in unread_alarms:
-            print(f"Alarm: {alarm.message} - Created At: {alarm.created_at}")
-
     except Exception as e:
-        print(f"Error in fetching alarms: {e}")
+        logger.error(f"Error fetching alarms: {e}")
         unread_alarms = []
 
     return render(request, 'main/main.html', {
@@ -37,7 +39,14 @@ def index(request):
 
 
 
-
+# def mark_alarm_read(request, alarm_id):
+#     if not request.user.is_authenticated:
+#         return HttpResponseForbidden()
+#
+#     alarm = get_object_or_404(Alarm, id=alarm_id, user=request.user)
+#     alarm.is_read = True
+#     alarm.save()
+#     return redirect('main')
 def mark_alarm_read(request, alarm_id):
     if not request.user.is_authenticated:
         return HttpResponseForbidden()
@@ -45,8 +54,11 @@ def mark_alarm_read(request, alarm_id):
     alarm = get_object_or_404(Alarm, id=alarm_id, user=request.user)
     alarm.is_read = True
     alarm.save()
-    return redirect('main')
+    logger.info(f"Alarm {alarm_id} marked as read for user {request.user}.")
 
+    # next 파라미터로 전달된 URL로 리디렉션
+    next_url = request.GET.get('next', 'main')  # 'next'가 없으면 메인으로 이동
+    return redirect(next_url)
 
 def notification_settings(request):
     if not request.user.is_authenticated:

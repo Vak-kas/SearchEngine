@@ -20,7 +20,7 @@ class CategoryStrategy(ABC):
 
 
 #ChatGPT API
-class OpenAIStrategy(CategoryStrategy):
+class OpenAICategory(CategoryStrategy):
     def analyze_category(self, content, categories):
         messages = [
             {
@@ -46,7 +46,7 @@ class OpenAIStrategy(CategoryStrategy):
         return result_category
 
 #무조건 백엔드
-class BackendStrategy(CategoryStrategy):
+class BackendCategory(CategoryStrategy):
     def analyze_category(self, cont, categories):
         result_category = "백엔드"
         return result_category

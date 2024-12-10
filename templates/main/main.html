@@ -13,20 +13,25 @@
         <button type="submit">알림 설정</button>
     </form>
 
-
     <h3>읽지 않은 알림</h3>
     <p>읽지 않은 알림 수: {{ unread_alarms|length }}</p>
 
     <ul>
         {% for alarm in unread_alarms %}
             <li>
-                {{ alarm.message }} (생성 시각: {{ alarm.created_at|date:"Y-m-d H:i" }})
+                <!-- 알림 클릭 시 mark_alarm_read 호출 -->
+                <a href="{% url 'mark_alarm_read' alarm.id %}?next={{ alarm.post.url }}" target="_blank">
+                    {{ alarm.message }} (생성 시각: {{ alarm.created_at|date:"Y-m-d H:i" }})
+                </a>
             </li>
         {% empty %}
             <li>읽지 않은 알림이 없습니다.</li>
         {% endfor %}
     </ul>
 
-
+    <!-- 글 수집 페이지로 이동하는 버튼 -->
+    <form action="{% url 'collect' %}" method="get">
+        <button type="submit">글 수집하러 가기</button>
+    </form>
 </body>
 </html>
