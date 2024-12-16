@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>메인페이지</title>
+    <script>
+        function toggleView(view) {
+            document.getElementById('category-posts').style.display = view === 'category' ? 'block' : 'none';
+            document.getElementById('recommend-posts').style.display = view === 'recommend' ? 'block' : 'none';
+        }
+    </script>
 </head>
 <body>
     <h2>메인페이지</h2>
@@ -13,21 +19,49 @@
         <button type="submit">알림 설정</button>
     </form>
 
-    <h3>읽지 않은 알림</h3>
-    <p>읽지 않은 알림 수: {{ unread_alarms|length }}</p>
+    <!-- 카테고리 새 글 확인 / 나에게 추천 글 버튼 -->
+    <div>
+        <button onclick="toggleView('category')">카테고리 새 글 확인</button>
+        <button onclick="toggleView('recommend')">나에게 추천 글</button>
+    </div>
 
-    <ul>
-        {% for alarm in unread_alarms %}
-            <li>
-                <!-- 알림 클릭 시 mark_alarm_read 호출 -->
-                <a href="{% url 'mark_alarm_read' alarm.id %}?next={{ alarm.post.url }}" target="_blank">
-                    {{ alarm.message }} (생성 시각: {{ alarm.created_at|date:"Y-m-d H:i" }})
-                </a>
-            </li>
-        {% empty %}
-            <li>읽지 않은 알림이 없습니다.</li>
-        {% endfor %}
-    </ul>
+    <!-- 카테고리 새 글 확인 -->
+    <div id="category-posts" style="display: block;">
+        <h3>읽지 않은 알림</h3>
+        <p>읽지 않은 알림 수: {{ unread_alarms|length }}</p>
+
+        <ul>
+            {% for alarm in unread_alarms %}
+                <li>
+                    <!-- 알림 클릭 시 mark_alarm_read 호출 -->
+                    <a href="{% url 'mark_alarm_read' alarm.id %}?next={{ alarm.post.url }}" target="_blank">
+                        {{ alarm.message }} (생성 시각: {{ alarm.created_at|date:"Y-m-d H:i" }})
+                    </a>
+                </li>
+            {% empty %}
+                <li>읽지 않은 알림이 없습니다.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- 나에게 추천 글 -->
+    <div id="recommend-posts" style="display: none;">
+        <h3>나에게 추천 글</h3>
+        <ul>
+            {% for post in recommended_posts %}
+                <li>
+                    <a href="{{ post.url }}" target="_blank">{{ post.title }}</a>
+                    <p>태그: 
+                        {% for tag in post.final.tags.all %}
+                            {{ tag.tag }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                </li>
+            {% empty %}
+                <li>추천 글이 없습니다.</li>
+            {% endfor %}
+        </ul>
+    </div>
 
     <!-- 글 수집 페이지로 이동하는 버튼 -->
     <form action="{% url 'collect' %}" method="get">

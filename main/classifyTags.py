@@ -74,17 +74,23 @@ class Similar(TagsStrategy):
     def analyze_tags(self, content, categories):
         pass
 
-def process_tags(post_id, strategy):
+def process_tags(post_id, strategies=None):
     try:
-
         post = Post.objects.get(id=post_id)
         content = post.content
 
         final, created = Final.objects.get_or_create(post=post)
 
-        # 전략을 사용하여 태그 생성
-        tags_string = strategy.analyze_tags(content, None)
-        tags_list = [tag.strip() for tag in tags_string.split(",") if tag.strip()]  # 태그를 ',' 기준으로 분리 후 정리
+        # 전략 기본값 설정
+        if strategies is None:
+            strategies = [OpenAITags(), MostWord()]
+
+        # 모든 전략 실행 및 태그 수집
+        all_tags = set()
+        for strategy in strategies:
+            tags_string = strategy.analyze_tags(content, None)
+            tags_list = [tag.strip() for tag in tags_string.split(",") if tag.strip()]
+            all_tags.update(tags_list)
 
         # Tags 모델에 태그 저장 (트랜잭션 처리)
         with transaction.atomic():
@@ -92,12 +98,14 @@ def process_tags(post_id, strategy):
             Tags.objects.filter(final=final).delete()
 
             # 새 태그 저장
-            for tag in tags_list:
+            for tag in all_tags:
                 Tags.objects.create(final=final, tag=tag)
 
-        print(f"Tags saved successfully for Post ID {post_id}: {tags_list}")
+        print(f"Tags saved successfully for Post ID {post_id}: {all_tags}")
 
     except Exception as e:
         print(f"Error processing tags for Post ID {post_id}: {e}")
+
+
 
 
