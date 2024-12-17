@@ -19,6 +19,8 @@
         <button type="submit">알림 설정</button>
     </form>
 
+
+
     <!-- 카테고리 새 글 확인 / 나에게 추천 글 버튼 -->
     <div>
         <button onclick="toggleView('category')">카테고리 새 글 확인</button>
@@ -44,6 +46,7 @@
         </ul>
     </div>
 
+
     <!-- 나에게 추천 글 -->
     <div id="recommend-posts" style="display: none;">
         <h3>나에게 추천 글</h3>
@@ -51,7 +54,7 @@
             {% for post in recommended_posts %}
                 <li>
                     <a href="{{ post.url }}" target="_blank">{{ post.title }}</a>
-                    <p>태그: 
+                    <p>태그:
                         {% for tag in post.final.tags.all %}
                             {{ tag.tag }}{% if not forloop.last %}, {% endif %}
                         {% endfor %}

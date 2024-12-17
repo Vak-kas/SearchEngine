@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import Post, Final
-from .classifyCategory import BackendCategory, process_post_to_final
+from .classifyCategory import BackendCategory, process_post_to_final, OpenAICategory
 from .classifyTags import OpenAITags, MostWord, process_tags
 
 
@@ -10,7 +10,8 @@ def handle_post_save(sender, instance, created, **kwargs):
     if created:
         try:
             # 카테고리 처리
-            category_strategy = BackendCategory()
+            # category_strategy = BackendCategory()
+            category_strategy = OpenAICategory()
             process_post_to_final(instance.id, category_strategy)
 
             # 태그 처리

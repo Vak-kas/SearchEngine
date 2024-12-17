@@ -19,8 +19,14 @@ def index(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    # 읽지 않은 알림 가져오기
-    unread_alarms = Alarm.objects.filter(user=request.user, is_read=False)
+    # 알림 설정 확인: push 알림이 활성화된 경우만 처리
+    push_enabled = NotificationSetting.objects.filter(user=request.user, notification_type='push', is_enabled=True).exists()
+
+    # 읽지 않은 알림 가져오기 (push 알림 설정이 켜져 있을 때만)
+    if push_enabled:
+        unread_alarms = Alarm.objects.filter(user=request.user, is_read=False)
+    else:
+        unread_alarms = []  # push 알림이 비활성화된 경우 알림 없음
 
     # 사용자 태그 기록 조회
     user_tags = UserTagHistory.objects.filter(user=request.user)
@@ -37,12 +43,13 @@ def index(request):
         post_scores[post] = score
 
     # 추천 순으로 정렬
-    recommended_posts = sorted(post_scores.keys(), key=lambda x: post_scores[x], reverse=True)
+    recommended_posts = sorted(post_scores.keys(), key=lambda x: post_scores[x], reverse=True)[:5]
 
     return render(request, 'main/main.html', {
         'unread_alarms': unread_alarms,
         'recommended_posts': recommended_posts,
     })
+
 
 
 

@@ -40,8 +40,9 @@ class SeleniumCollector(Collector):
 
 # SoloCollector 정의
 class SoloCollector(Collector):
-    def __init__(self, adapter):
+    def __init__(self, adapter, func):
         self.adapter = adapter
+        self.func = func
 
     def collect_data(self, url):
         if not url:
@@ -56,6 +57,7 @@ class SoloCollector(Collector):
             title = soup.title.string if soup.title else None
             # content = soup.get_text()
             content = response.text
+            #content = func()
             data = {
                 'url': url,
                 'content': content.strip(),
@@ -80,11 +82,17 @@ class CollectorFactory:
         """
         if collector_type == 'scrapy':
             adapter = ScrapyAdapter()
+
             return ScrapyCollector(adapter=adapter)
         elif collector_type == 'selenium':
             return SeleniumCollector()  # Selenium은 Adapter 구현이 필요 없음
         elif collector_type == 'solo':
             adapter = SoloAdapter({})
-            return SoloCollector(adapter=adapter)
+            func = HTMLParser()
+            return SoloCollector(adapter=adapter, func=func)
         else:
             raise ValueError("지원하지 않는 수집기 유형입니다.")
+
+
+def HTMLParser():
+    pass
