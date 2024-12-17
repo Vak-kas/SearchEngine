@@ -1,38 +1,43 @@
+from .adapter import Adapter, SoloAdapter
+from .forms import CollectorForm
 from django.http import JsonResponse
 from .factory import CollectorFactory
-from .adapter import PostAdapter
-from .forms import SoloCollectorForm
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+
 
 
 def index(request):
-    return render(request, 'main/main.html')
+    return redirect('main')
+
+
+
 
 def collect_and_save(request):
     if request.method == 'POST':
-        collector_type = request.POST.get('collector_type')
+        # URL 데이터 가져오기
         url = request.POST.get('url')
+        collector_type = request.POST.get('collector_type')  # 'scrapy', 'selenium', 'solo'
 
-        if not collector_type or not url:
-            return JsonResponse({'error': 'collector_type과 url은 필수입니다.'}, status=400)
+        if not url or not collector_type:
+            return JsonResponse({'error': 'URL 또는 수집기 유형이 제공되지 않았습니다.'}, status=400)
 
         try:
             collector = CollectorFactory.create_collector(collector_type)
-            data = collector.collect_data(url)
+            collected_data = collector.collect_data(url)
+            print(collected_data)
 
-            if data:
-                adapter = PostAdapter(data)
-                response = adapter.transform_and_save()
-                return response
-            else:
-                return JsonResponse({'error': '데이터 수집에 실패했습니다.'}, status=500)
+            if not collected_data:
+                return JsonResponse({'error': f'{collector_type} 수집기: 데이터 수집 실패'}, status=500)
 
-        except ValueError as ve:
-            return JsonResponse({'error': str(ve)}, status=400)
+            return redirect('main')
         except Exception as e:
-            return JsonResponse({'error': f'알 수 없는 오류가 발생했습니다: {e}'}, status=500)
+            return JsonResponse({'error': str(e)}, status=500)
 
     elif request.method == 'GET':
-        form = SoloCollectorForm()
-        return render(request, 'main/solo_form.html', {'form': form})
+        form = CollectorForm()
+        return render(request, 'main/collector_form.html', {'form': form})
+
+    return JsonResponse({'error': 'POST 요청만 지원됩니다.'}, status=405)
+
+
 

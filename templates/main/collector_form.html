@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Collector Form</title>
+</head>
+<body>
+    <h1>수집기 선택 및 URL 입력</h1>
+    <form method="POST" action="/main/collect/">
+        {% csrf_token %}
+        <div>
+            <label for="id_url">URL:</label>
+            {{ form.url }}
+        </div>
+        <div>
+            <label for="id_collector_type">수집기 유형:</label>
+            {{ form.collector_type }}
+        </div>
+        <button type="submit">수집 시작</button>
+    </form>
+</body>
+</html>

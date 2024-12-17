@@ -23,6 +23,7 @@ urlpatterns = [
     path('signup/', include('signup.urls')),
     path('login/', include('login.urls')),  # login 앱의 URL 포함
     path('main/', include('main.urls')),  # login 앱의 URL 포함
+    path('alarm/', include('alarm.urls')),  # login 앱의 URL 포함
 
 
 ]

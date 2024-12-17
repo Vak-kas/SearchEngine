@@ -1,80 +1,98 @@
 from abc import ABC, abstractmethod
 import requests
 from bs4 import BeautifulSoup
+from main.adapter import SoloAdapter, ScrapyAdapter
+
+
 # 수집기 인터페이스
 class Collector(ABC):
     @abstractmethod
-    def collect_data(self):
+    def collect_data(self, url, adapter):
         pass
+
 
 # A형 수집기 예시 (웹 스크래핑)
 class ScrapyCollector(Collector):
-    def collect_data(self):
-        # 실제 스크래핑 로직을 여기에 구현
-        return {
-            'url': 'https://example.com',
-            'content': 'This is example content.',
-            'host': None,  # 호스트는 어댑터에서 처리
-            'title': 'Example Title',
-            'author': 'Author Name'
-        }
+    def __init__(self, adapter):
+        self.adapter = adapter
+
+    def collect_data(self, url):
+        # data = {
+        #     'url': url,
+        #     'content': 'Scrapy로 수집된 콘텐츠',
+        #     'title': 'Scrapy 제목',
+        #     'author': 'Scrapy 작가'
+        # }
+        # return self.adapter.transform_and_save(data)
+        pass
+
 
 # B형 수집기 예시 (API 호출)
 class SeleniumCollector(Collector):
-    def collect_data(self):
-        # 실제 API 호출 로직을 여기에 구현
-        return {
-            'url': 'https://api.example.com/data',
-            'content': 'This is content from API.',
-            'host': 'api.example.com',
-            'title': 'API Data Title',
-            'author': 'API Author'
-        }
+    def __init__(self):
+        pass
+
+    def collect_data(self, url):
+        # Selenium 데이터 수집 로직 구현
+        print("Selenium 데이터 수집 로직 실행")
+        return None
 
 
+# SoloCollector 정의
 class SoloCollector(Collector):
+    def __init__(self, adapter, func):
+        self.adapter = adapter
+        self.func = func
+
     def collect_data(self, url):
         if not url:
             raise ValueError("URL이 없음")
 
         try:
-            # URL로 HTTP GET 요청
             response = requests.get(url)
-            response.raise_for_status()  # 상태 코드 확인
+            response.raise_for_status()
 
-            # BeautifulSoup을 사용하여 HTML 파싱
             soup = BeautifulSoup(response.text, 'html.parser')
 
-            # 기본 데이터 수집 (예: 타이틀 및 본문)
             title = soup.title.string if soup.title else None
-            content = soup.get_text()
-
-            # 수집된 데이터를 반환
-            return {
+            # content = soup.get_text()
+            content = response.text
+            #content = func()
+            data = {
                 'url': url,
                 'content': content.strip(),
-                'host': None,  # host는 PostAdapter에서 처리 예정
+                'host': None,  # host는 Adapter에서 처리 예정
                 'title': title,
                 'author': None
             }
+            self.adapter.data = data
+            return self.adapter.transform_and_save()
         except Exception as e:
             print(f"Error collecting data from {url}: {e}")
             return None
+
 
 
 # CollectorFactory 구현
 class CollectorFactory:
     @staticmethod
     def create_collector(collector_type):
+        """
+        필요한 Collector와 Adapter를 연결하여 생성
+        """
         if collector_type == 'scrapy':
-            return ScrapyCollector()
+            adapter = ScrapyAdapter()
+
+            return ScrapyCollector(adapter=adapter)
         elif collector_type == 'selenium':
-            return SeleniumCollector()
+            return SeleniumCollector()  # Selenium은 Adapter 구현이 필요 없음
         elif collector_type == 'solo':
-            return SoloCollector()
+            adapter = SoloAdapter({})
+            func = HTMLParser()
+            return SoloCollector(adapter=adapter, func=func)
         else:
             raise ValueError("지원하지 않는 수집기 유형입니다.")
 
 
-
-
+def HTMLParser():
+    pass

@@ -1,8 +1,13 @@
 from django import forms
 
-class SoloCollectorForm(forms.Form):
-    url = forms.URLField(
-        label='URL',
-        widget=forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Enter the URL'}),
-        required=True
+class CollectorForm(forms.Form):
+    url = forms.URLField(label='URL', required=True, widget=forms.TextInput(attrs={'placeholder': 'URL 입력'}))
+    collector_type = forms.ChoiceField(
+        label='수집기 유형',
+        choices=[
+            ('scrapy', 'A (Scrapy)'),
+            ('selenium', 'B (Selenium)'),
+            ('solo', 'C (Solo)')
+        ],
+        widget=forms.RadioSelect
     )

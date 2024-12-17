@@ -1,30 +1,27 @@
 from decouple import config
-from openai import OpenAI
+from abc import ABC, abstractmethod
 from .models import Post, Final
 from signup.models import Category
+from openai import OpenAI
+from django.conf import settings
 import logging
+
+
 logger = logging.getLogger(__name__)
-
-
 
 client = OpenAI(
     api_key = config("OPENAI_API_KEY", default="")
 )
 
-def process_post_to_final(post_id):
-    try:
-        # Post 데이터 가져오기
-        post = Post.objects.get(id=post_id)
-        content = post.content
-        url = post.url
+class CategoryStrategy(ABC):
+    @abstractmethod
+    def analyze_category(self, content, categories):
+        pass
 
-        # Category 모델에서 카테고리 목록 가져오기
-        categories = list(Category.objects.values_list('category', flat=True))
 
-        if not categories:
-            return "No categories available in the database."
-
-        # OpenAI API 메시지 구성
+#ChatGPT API
+class OpenAICategory(CategoryStrategy):
+    def analyze_category(self, content, categories):
         messages = [
             {
                 "role": "system",
@@ -41,30 +38,44 @@ def process_post_to_final(post_id):
             }
         ]
 
-        # OpenAI API 호출
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages
         )
-
-        # 결과 카테고리 추출
-        print(response.choices[0].message)
         result_category = response.choices[0].message.content.strip()
+        return result_category
 
-        # Final 모델에 데이터 저장
+#무조건 백엔드
+class BackendCategory(CategoryStrategy):
+    def analyze_category(self, cont, categories):
+        result_category = "백엔드"
+        return result_category
+
+
+
+def process_post_to_final(post_id, strategy):
+    try:
+        post = Post.objects.get(id=post_id)
+        content = post.content
+
+        categories = list(Category.objects.values_list('category', flat=True))
+        if not categories:
+            logger.error("No categories available in the database.")
+            return
+
+        result_category = strategy.analyze_category(content, categories)
+
         final_entry, created = Final.objects.get_or_create(
-            post=post,  # post 객체 사용
+            post=post,
             defaults={'category': result_category}
         )
 
         if created:
-            logger.info(f"Category '{result_category}' saved successfully for URL: {url}.")
+            logger.info(f"Category '{result_category}' saved successfully for Post ID: {post_id}.")
         else:
-            logger.info(f"URL already exists in Final. Category: '{final_entry.category}'.")
-    except Exception as e:
-        logger.error(f"Error processing Post ID {post_id}: {e}")
+            logger.info(f"Post ID {post_id} already exists in Final. Category: '{final_entry.category}'.")
 
     except Post.DoesNotExist:
-        return f"Post with ID {post_id} does not exist."
+        logger.error(f"Post with ID {post_id} does not exist.")
     except Exception as e:
-        return f"Error: {e}"
+        logger.error(f"Error processing Post ID {post_id}: {e}")
